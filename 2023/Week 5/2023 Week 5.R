@@ -57,10 +57,10 @@ cat_spd <- cat_spd %>%
   mutate(
     
     tooltip_text = paste0(tag_id, "\n",
-                          round(mean_spd), "m/sec", "\n",
+                          round(mean_spd), " m/sec", "\n",
                           toupper(animal_sex), "\n",
-                          "Daily Time Indoors:", hrs_indoors, "hr", "\n",
-                          "Age:", age_years)
+                          "Daily Time Indoors: ", hrs_indoors, "hrs", "\n",
+                          "Age: ", age_years)
   )
 
 #===========================================================================================
@@ -71,23 +71,47 @@ cat_spd <- cat_spd %>%
 library(plotly)
 library(ggiraph)
 library(patchwork)
+library(extrafont)
+loadfonts(device = "win")
 
 
 # Create plot of mean speed vs cat sex
 cat_graph <- 
+  
+  # Define basic plot
   ggplot(data = cat_spd,
          aes(x = age_years,
              y = mean_spd,
              data_id = tag_id)) +
   
-  geom_point(data = cat_spd,
+  # Create interactive scatter plot
+  geom_point_interactive(data = cat_spd,
              aes(colour = factor(animal_sex),
                  shape = out_rank,
-                 tooltip = tooltip_text,)) +
+                 tooltip = tooltip_text)) +
   
-  geom_col_interactive(color = "black",
-                       fill = "#0072B2",
-                       size = 0.5)
+  # Modify sex legend title
+  scale_colour_discrete(name = "Cat Sex") +
+  
+  # Modify indoor time legend title
+  scale_shape_discrete(name = "Daily Hours Indoors") +
+  
+  # Graph labels
+  ggtitle("Average Groundspeed of Cats") +
+  
+  labs(x = "Cat Age",
+       y = "Average Groundspeed") +
+  
+  # Specify graph theme
+  theme(text = element_text(family = "TT Times New Roman"),
+        axis.text = element_text(family = "TT Times New Roman"),
+        panel.background = element_rect(fill = "white"),
+        axis.line = element_line(linetype = 1),
+        plot.title = element_text(size = 22),
+        axis.title = element_text(size = 14))
 
 # Display interactive graph
-girafe(ggobj = cat_graph)
+girafe(ggobj = cat_graph,
+       options = list(opts_sizing(rescale = F)),
+       height_svg = 8,
+       width_svg = 10)

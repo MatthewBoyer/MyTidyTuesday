@@ -1,0 +1,21 @@
+---
+title: "Tidy Tuesday: 2023 - Week 6"
+author: "Matthew S. Boyer"
+format: pdf
+editor: visual
+---
+
+```{r}
+# Load tidyverse and tidytuesday
+library(tidyverse)
+library(tidytuesdayR)
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
