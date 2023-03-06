@@ -1,21 +1,72 @@
 ---
 title: "Tidy Tuesday: 2023 - Week 6"
 author: "Matthew S. Boyer"
-format: pdf
+format: html
 editor: visual
 ---
 
 ```{r}
 # Load tidyverse and tidytuesday
+#| include: false
+
 library(tidyverse)
 library(tidytuesdayR)
+library(reactable)
 ```
-
-You can add options to executable code like this
 
 ```{r}
 #| echo: false
-2 * 2
+
+# Import tidy tuesday week 6 data
+tuesdata <- tidytuesdayR::tt_load(2023, week = 6)
+
+prices <- tuesdata$big_tech_stock_prices
+firms <- tuesdata$big_tech_companies
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+```{r}
+#| echo: false
+
+# Calculate daily price spreads
+prices2 <- prices %>%
+  mutate(
+    
+    spread = high - low
+    
+  )
+
+# Calculate average price spreads for each firm
+prices3 <- prices2 %>% 
+  group_by(stock_symbol) %>% 
+  summarise(avg_sprd = mean(spread))
+
+# Merge average price spreads with firm names
+prices3 <- prices3 %>%
+  merge(firms) %>% 
+  select(c(company,
+           stock_symbol,
+           avg_sprd))
+
+```
+
+```{r}
+#| echo: false
+
+# Create simple reactable
+reactable(prices3,
+          showPageSizeOptions = T,
+          defaultPageSize = 5,
+          filterable = T,
+          
+          # Format columns
+          columns = list(
+            company = colDef(name = "Company"),
+            stock_symbol = colDef(name = "Ticker"),
+            avg_sprd = colDef(name = "Average Spread",
+                              cell = function(avg_sprd){
+                                paste0("$", round(avg_sprd, 2))
+                              })
+          )
+          )
+
+```
